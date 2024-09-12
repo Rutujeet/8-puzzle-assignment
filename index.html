@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Encoding the 8-Puzzle Problem</title>
+    <style>
+      body {
+        font-family: monospace, serif;
+        margin: 20px;
+      }
+      h1,
+      h2,
+      h3 {
+        font-weight: bold;
+        margin-top: 1em;
+        margin-bottom: 0.5em;
+      }
+      h1 {
+        font-size: 2em;
+      }
+      h2 {
+        font-size: 1.5em;
+      }
+      h3 {
+        font-size: 1.2em;
+      }
+      pre {
+        background-color: #f9f9f9;
+        border: 1px solid #ccc;
+        padding: 10px;
+        white-space: pre-wrap;
+        font-family: monospace;
+      }
+      code {
+        font-family: monospace;
+      }
+      .author {
+        font-weight: bold;
+      }
+      .lstlisting {
+        background-color: #f0f0f0;
+        padding: 10px;
+        border-radius: 5px;
+        font-family: monospace;
+        font-size: 0.9em;
+        white-space: pre;
+        color: black;
+      }
+      .python-keyword {
+        color: blue;
+      }
+      .python-string {
+        color: red;
+      }
+      .python-comment {
+        color: green;
+      }
+      .code-line-numbers {
+        display: inline-block;
+        width: 25px;
+        color: #888;
+        text-align: right;
+        margin-right: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Encoding the 8-Puzzle Problem</h1>
+    <p class="author">
+      Rutujeet Suryawanshi - <span style="color: red">112121067</span>
+    </p>
+
+    <h2>Introduction</h2>
+    <p>
+      The 8-puzzle is a sliding puzzle that consists of a frame of numbered
+      square tiles in random order with one tile missing. The objective is to
+      rearrange the tiles to reach a specific goal configuration. This document
+      presents a Python implementation of the 8-puzzle problem, following a
+      step-by-step approach.
+    </p>
+
+    <h2>Problem Implementation</h2>
+
+    <h3>Define the Problem State</h3>
+    <p>
+      We'll represent the 8-puzzle grid as a 2D list in Python. The empty space
+      will be represented by the number 0.
+    </p>
+
+    <pre class="lstlisting">
+<span class="code-line-numbers">1</span><span class="python-keyword">import</span> copy
+<span class="code-line-numbers">2</span><span class="python-keyword">from</span> collections <span class="python-keyword">import</span> deque
+
+<span class="code-line-numbers">3</span><span class="python-keyword">class</span> Puzzle:
+<span class="code-line-numbers">4</span>    <span class="python-keyword">def</span> __init__(self, initial_state):
+<span class="code-line-numbers">5</span>        self.state = initial_state
+<span class="code-line-numbers">6</span>        self.goal_state = [[1, 2, 3], [4, 5, 6], [7, 8, 0]]
+    </pre>
+
+    <h3>Goal and Initial State</h3>
+    <p>
+      We'll allow for input of an initial state and implement a method to check
+      if it matches the goal state.
+    </p>
+
+    <pre class="lstlisting">
+<span class="code-line-numbers">1</span>    <span class="python-keyword">def</span> is_goal(self):
+<span class="code-line-numbers">2</span>        <span class="python-keyword">return</span> self.state == self.goal_state
+
+<span class="code-line-numbers">3</span>    <span class="python-keyword">def</span> get_blank_position(self):
+<span class="code-line-numbers">4</span>        <span class="python-keyword">for</span> i <span class="python-keyword">in</span> range(3):
+<span class="code-line-numbers">5</span>            <span class="python-keyword">for</span> j <span class="python-keyword">in</span> range(3):
+<span class="code-line-numbers">6</span>                <span class="python-keyword">if</span> self.state[i][j] == 0:
+<span class="code-line-numbers">7</span>                    <span class="python-keyword">return</span> i, j
+    </pre>
+
+    <h3>Move Generation</h3>
+    <p>
+      We'll implement methods to generate possible moves by swapping the blank
+      space with adjacent tiles.
+    </p>
+
+    <pre class="lstlisting">
+<span class="code-line-numbers">1</span>    <span class="python-keyword">def</span> get_possible_moves(self):
+<span class="code-line-numbers">2</span>        i, j = self.get_blank_position()
+<span class="code-line-numbers">3</span>        moves = []
+<span class="code-line-numbers">4</span>        <span class="python-keyword">if</span> i > 0: moves.append(<span class="python-string">'up'</span>)
+<span class="code-line-numbers">5</span>        <span class="python-keyword">if</span> i < 2: moves.append(<span class="python-string">'down'</span>)
+<span class="code-line-numbers">6</span>        <span class="python-keyword">if</span> j > 0: moves.append(<span class="python-string">'left'</span>)
+<span class="code-line-numbers">7</span>        <span class="python-keyword">if</span> j < 2: moves.append(<span class="python-string">'right'</span>)
+<span class="code-line-numbers">8</span>        <span class="python-keyword">return</span> moves
+
+<span class="code-line-numbers">9</span>    <span class="python-keyword">def</span> move(self, direction):
+<span class="code-line-numbers">10</span>        i, j = self.get_blank_position()
+<span class="code-line-numbers">11</span>        new_state = copy.deepcopy(self.state)
+            
+<span class="code-line-numbers">12</span>        <span class="python-keyword">if</span> direction == <span class="python-string">'up'</span>:
+<span class="code-line-numbers">13</span>            new_state[i][j], new_state[i-1][j] = new_state[i-1][j], new_state[i][j]
+<span class="code-line-numbers">14</span>        <span class="python-keyword">elif</span> direction == <span class="python-string">'down'</span>:
+<span class="code-line-numbers">15</span>            new_state[i][j], new_state[i+1][j] = new_state[i+1][j], new_state[i][j]
+<span class="code-line-numbers">16</span>        <span class="python-keyword">elif</span> direction == <span class="python-string">'left'</span>:
+<span class="code-line-numbers">17</span>            new_state[i][j], new_state[i][j-1] = new_state[i][j-1], new_state[i][j]
+<span class="code-line-numbers">18</span>        <span class="python-keyword">elif</span> direction == <span class="python-string">'right'</span>:
+<span class="code-line-numbers">19</span>            new_state[i][j], new_state[i][j+1] = new_state[i][j+1], new_state[i][j]
+            
+<span class="code-line-numbers">20</span>        <span class="python-keyword">return</span> Puzzle(new_state)
+    </pre>
+
+    <h3>Search for the Solution</h3>
+    <p>
+      We'll implement a Breadth-First Search (BFS) algorithm to find the
+      shortest path to the goal state.
+    </p>
+
+    <pre class="lstlisting">
+<span class="code-line-numbers">1</span><span class="python-keyword">def</span> solve_puzzle(initial_state):
+<span class="code-line-numbers">2</span>    start = Puzzle(initial_state)
+<span class="code-line-numbers">3</span>    <span class="python-keyword">if</span> start.is_goal():
+<span class="code-line-numbers">4</span>        <span class="python-keyword">return</span> []
+
+<span class="code-line-numbers">5</span>    visited = set()
+<span class="code-line-numbers">6</span>    queue = deque([(start, [])])
+
+<span class="code-line-numbers">7</span>    <span class="python-keyword">while</span> queue:
+<span class="code-line-numbers">8</span>        puzzle, path = queue.popleft()
+<span class="code-line-numbers">9</span>        state_tuple = tuple(map(tuple, puzzle.state))
+            
+<span class="code-line-numbers">10</span>        <span class="python-keyword">if</span> state_tuple <span class="python-keyword">not</span> <span class="python-keyword">in</span> visited:
+<span class="code-line-numbers">11</span>            visited.add(state_tuple)
+                
+<span class="code-line-numbers">12</span>            <span class="python-keyword">if</span> puzzle.is_goal():
+<span class="code-line-numbers">13</span>                <span class="python-keyword">return</span> path
+                
+<span class="code-line-numbers">14</span>            <span class="python-keyword">for</span> move <span class="python-keyword">in</span> puzzle.get_possible_moves():
+<span class="code-line-numbers">15</span>                new_puzzle = puzzle.move(move)
+<span class="code-line-numbers">16</span>                new_path = path + [move]
+<span class="code-line-numbers">17</span>                queue.append((new_puzzle, new_path))
+                
+<span class="code-line-numbers">18</span>    <span class="python-keyword">return</span> <span class="python-keyword">None</span>  <span class="python-comment"># No solution found</span>
+    </pre>
+
+    <h3>Output</h3>
+    <p>
+      We'll create a function to display the puzzle state and another to show
+      the solution.
+    </p>
+
+    <pre class="lstlisting">
+<span class="code-line-numbers">1</span><span class="python-keyword">def</span> print_puzzle(state):
+<span class="code-line-numbers">2</span>    <span class="python-keyword">for</span> row <span class="python-keyword">in</span> state:
+<span class="code-line-numbers">3</span>        <span class="python-keyword">print</span>(<span class="python-string">' '</span>.join(<span class="python-keyword">str</span>(tile) <span class="python-keyword">for</span> tile <span class="python-keyword">in</span> row))
+<span class="code-line-numbers">4</span>    <span class="python-keyword">print</span>()
+
+<span class="code-line-numbers">5</span><span class="python-keyword">def</span> print_solution(initial_state, solution):
+<span class="code-line-numbers">6</span>    <span class="python-keyword">if</span> solution <span class="python-keyword">is</span> <span class="python-keyword">None</span>:
+<span class="code-line-numbers">7</span>        <span class="python-keyword">print</span>(<span class="python-string">"No solution found."</span>)
+<span class="code-line-numbers">8</span>        <span class="python-keyword">return</span>
+    
+<span class="code-line-numbers">9</span>    <span class="python-keyword">print</span>(<span class="python-string">"Initial state:"</span>)
+<span class="code-line-numbers">10</span>    print_puzzle(initial_state)
+    
+<span class="code-line-numbers">11</span>    current_state = initial_state
+<span class="code-line-numbers">12</span>    <span class="python-keyword">for</span> i, move <span class="python-keyword">in</span> enumerate(solution):
+<span class="code-line-numbers">13</span>        puzzle = Puzzle(current_state)
+<span class="code-line-numbers">14</span>        current_state = puzzle.move(move).state
+<span class="code-line-numbers">15</span>        <span class="python-keyword">print</span>(<span class="python-string">"Move {}</span>.format(i+1, move))
+<span class="code-line-numbers">16</span>        print_puzzle(current_state)
+    
+<span class="code-line-numbers">17</span>    <span class="python-keyword">print</span>(<span class="python-string">"Solution found in {}</span>.format(len(solution)) <span class="python-string">" moves."</span>)
+    </pre>
+
+    <h2>Testing the Implementation</h2>
+    <p>
+      To test if the implementation is working correctly, we can create a main
+      function that sets up an initial state, solves the puzzle, and displays
+      the solution.
+    </p>
+
+    <pre class="lstlisting">
+<span class="code-line-numbers">1</span><span class="python-keyword">def</span> main():
+<span class="code-line-numbers">2</span>    initial_state = [
+<span class="code-line-numbers">3</span>        [1, 2, 3],
+<span class="code-line-numbers">4</span>        [4, 0, 6],
+<span class="code-line-numbers">5</span>        [7, 5, 8]
+<span class="code-line-numbers">6</span>    ]
+    
+<span class="code-line-numbers">7</span>    solution = solve_puzzle(initial_state)
+<span class="code-line-numbers">8</span>    print_solution(initial_state, solution)
+
+<span class="code-line-numbers">9</span><span class="python-keyword">if</span> __name__ == <span class="python-string">"__main__"</span>:
+<span class="code-line-numbers">10</span>    main()
+    </pre>
+
+    <h2>Conclusion</h2>
+    <p>
+      This implementation of the 8-puzzle problem demonstrates the use of a 2D
+      list to represent the puzzle state, a Breadth-First Search algorithm to
+      find the optimal solution, and helper functions to visualize the
+      puzzle-solving process. The code can be further optimized or extended to
+      use more advanced algorithms like A* search for improved performance on
+      more complex puzzles.
+    </p>
+
+    <p>
+      To test the implementation, run the Python script and observe the output.
+      You can modify the initial state in the <code>main()</code> function to
+      test different puzzle configurations. Ensure that the initial state is
+      solvable, as not all 8-puzzle configurations have a solution.
+    </p>
+  </body>
+</html>
